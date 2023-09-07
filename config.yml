@@ -18,7 +18,7 @@ parameters:
     max: 30
   NH4:
     min: 0
-    max: 50
+    max: 67
   Nitrate:
     min: 0
     max: 100
