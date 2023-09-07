@@ -29,5 +29,5 @@ parameters:
     min: 200
     max: 400
 
-# The specific time of day to receive a running message (in 24-hour format)
-message_schedule: "12:10"
+# The specific time of day to receive a running message (in 24-hour format) NOTE: This is in UTC time
+message_schedule: "15:02"

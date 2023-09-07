@@ -65,7 +65,16 @@ def send_emails(subject, body):
 def still_running():
     send_emails("Remote Monitor: OK", "The monitor is currently running.")
 
-schedule.every().day.at(message_schedule).do(still_running)
+schedule.every().day.at(message_schedule).do(send_emails,"Remote Monitor: OK", f"""
+    The monitor is currently running with the following setpoints:
+    pH: {ph_min} - {ph_max}
+    Temp: {temp_min} - {temp_max} C
+    NH4: {nh4_min} - {nh4_max} mg/L
+    Nitrate: {nitrate_min} - {nitrate_max} mg/L
+    Dissolved Oxygen: {do_min} - {do_max} mg/L
+    ORP: {orp_min} - {orp_max} mV
+    Remote Response Threshold: {remote_response_threshold} minutes
+    """)
 
 while True:
     schedule.run_pending()
