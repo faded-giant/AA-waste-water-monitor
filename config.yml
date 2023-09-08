@@ -6,7 +6,7 @@ email_recipients:
   - eckenned@umich.edu
 
 # Acceptable duration (in minutes) to not receive a response from the remote system
-remote_response_threshold: 15
+remote_response_threshold: 3
 
 # Set points for different water quality parameters
 parameters:
@@ -15,7 +15,7 @@ parameters:
     max: 7.5
   Temp:
     min: 20
-    max: 30
+    max: 32
   NH4:
     min: 0
     max: 67
@@ -30,4 +30,4 @@ parameters:
     max: 400
 
 # The specific time of day to receive a running message (in 24-hour format) NOTE: This is in UTC time
-message_schedule: "15:02"
+message_schedule: "07:00"

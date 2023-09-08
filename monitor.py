@@ -1,7 +1,11 @@
 
-import smtplib, ssl, schedule, time
+import smtplib, ssl, schedule, time,os,re,datetime
 
 import yaml
+
+directory_path = "/home/ubuntu/Dropbox (University of Michigan)/monitor-test"
+alert_sent = False
+
 
 email_recipients = ""
 remote_response_threshold = ""
@@ -29,6 +33,65 @@ orp_max = ""
 message_schedule = ""
 
 previous_config = ""
+
+def time_since_last_log(log_line):
+    try:
+        parts = log_line.split(',')
+        if len(parts) >= 2:
+            timestamp_str = parts[0].strip()
+            timestamp = datetime.datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+            
+            current_time = datetime.datetime.now()
+            time_difference = current_time - timestamp
+            
+            # Return the time difference in minutes
+            return int(time_difference.total_seconds() / 60)
+        else:
+            return -1  # Return -1 for invalid log format
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return -1  # Return -1 for any errors
+
+
+
+def get_last_line_from_recent_file(directory):
+    try:
+        # List all files in the directory
+        files = os.listdir(directory)
+
+        # Filter the files to include only those matching the expected format (e.g., 2023-Sep-08.csv)
+        filtered_files = [file for file in files if re.match(r'\d{4}-[A-Za-z]{3}-\d{2}\.csv', file)]
+
+        # Sort the filtered files by modification time (most recent first)
+        sorted_files = sorted(filtered_files, key=lambda x: os.path.getmtime(os.path.join(directory, x)), reverse=True)
+
+        # Check if there are any matching files
+        if sorted_files:
+            # Get the most recent file
+            most_recent_file = sorted_files[0]
+
+            # Define the full path to the most recent file
+            most_recent_file_path = os.path.join(directory, most_recent_file)
+
+            # Read the last line from the most recent file
+            with open(most_recent_file_path, 'r') as file:
+                lines = file.readlines()
+                if lines:
+                    last_line = lines[-1].strip()
+                    return last_line
+                else:
+                    return "The most recent file is empty."
+        else:
+            return "No matching files found in the directory."
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+
+# Example usage:
+#directory_path = "/home/ubuntu/Dropbox (University of Michigan)/monitor-test"
+directory_path = "/Users/ethan/Dropbox (University of Michigan)/monitor-test"
+last_line = get_last_line_from_recent_file(directory_path)
+print(last_line)
+
 
 def get_system_status_string():
     global ph_min, ph_max, temp_min, temp_max, nh4_min, nh4_max, nitrate_min, nitrate_max, do_min, do_max, orp_min, orp_max, remote_response_threshold;
@@ -106,8 +169,27 @@ def send_emails(subject, body):
 
 schedule.every().day.at(message_schedule).do(send_emails,"Remote Monitor: OK", get_system_status_string())
 send_emails("Remote Monitor: Started", get_system_status_string())
+time.sleep(3)
+def analyze_data():
+    global alert_sent
+    last_line = get_last_line_from_recent_file(directory_path)
+    print(last_line)
+    
+    time_difference_minutes = time_since_last_log(last_line)
+    print(f"Time since last log entry: {time_difference_minutes} minutes")
+
+    if time_difference_minutes >= int(remote_response_threshold):
+        if not alert_sent:
+            send_emails(f"ALERT: It has been {time_difference_minutes} minutes since last report", get_system_status_string())
+            alert_sent = True
+    elif alert_sent and time_difference_minutes < int(remote_response_threshold):
+        send_emails(f"Remote Monitor: OK. Recieved fresh data","")
+        alert_sent = False
+
 
 while True:
     schedule.run_pending()
-    time.sleep(60)  # Wait for one minute
+    time.sleep(1)  # Wait for one minute
     update_config()
+    analyze_data()
+    
