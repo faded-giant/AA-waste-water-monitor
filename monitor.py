@@ -189,7 +189,7 @@ def analyze_data():
 
 while True:
     schedule.run_pending()
-    time.sleep(1)  # Wait for one minute
+    time.sleep(30) 
     update_config()
     analyze_data()
     
