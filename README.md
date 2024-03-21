@@ -67,8 +67,8 @@ parameters:
 message_schedule: "07:00"
 ```
 
-### Adding Monitor
-add the following to the `parameters` section of `config.yml`:
+### Adding a Parameter Monitor
+The monitor will let you know if a parameter is out of spec. To add a monitor, add the following to the `parameters` section of `config.yml`:
 ```yaml
 <name>:
     min: <minimum allowable value>
