@@ -2,8 +2,8 @@ import time,sys , yaml,os,re,ssl, smtplib,schedule,datetime,pytz
 from unidecode import unidecode
 port = 465  # For SSL
 smtp_server = "smtp.gmail.com"
-sender_email = "aa.waste.water.monitor@gmail.com"  # Enter your address
-password = "jfacvpymfqbenkup"
+sender_email = <email_addr>  # Enter your address
+password = <email_password>
 email_recipients=""
 Monitors = {}
 directory_path = sys.argv[1]
