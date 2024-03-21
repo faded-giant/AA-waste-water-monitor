@@ -8,8 +8,8 @@ Syncing data from the remote site to the monitor instance with `Dropbox` is reco
 Run `python3 monitor.py <path/to/.csv files>`
 
 ## Formatting Rules
-Whatever programming is generating data you wish to monitor needs to follow the following rules:
--  A new `.csv` file containing data is generated on a daily basis, formatted `YYYY-MMM-21.csv` Example: `2024-Mar-21.csv`
+Whatever programming is generating data you wish to monitor needs to follow these rules:
+-  A new `.csv` file containing data is generated on a daily basis, formatted `YYYY-MMM-DD.csv` Example: `2024-Mar-21.csv`
 - In these `.csv` files:	
   1. First row of the file is a header naming each parameter
   2. First column of each entry is a timestamp formatted: `YYYY-MM-DD hh:mm:ss`
