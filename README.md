@@ -12,7 +12,7 @@ Whatever program is generating data you wish to monitor needs to follow these ru
 -  A new `.csv` file containing data is generated on a daily basis, formatted `YYYY-MMM-DD.csv` Example: `2024-Mar-21.csv`
 - In these `.csv` files:	
   1. First row of the file is a header naming each parameter
-  2. First column of each entry is a timestamp formatted: `YYYY-MM-DD hh:mm:ss`
+  2. First column of each entry is a timestamp formatted: `YYYY-MM-DD HH:MM:SS`
   3. Any parameters being monitored should be a number
  
 
@@ -78,7 +78,7 @@ The monitor will let you know if a parameter is out of spec. To add a monitor, a
 `<name>` must be EXACTLY the same as it appears in the .csv header. 
 
 ### Stale Data Detection
-The monitor can detect if new data isnt coming in:
+The monitor can detect if new data isn't coming in:
 ```yaml
 remote_response_threshold:
   duration: <minutes until data is "stale">
@@ -95,7 +95,7 @@ email_recipients:
 ```
 To add more users, just add new entry to this section
 ### Daily Running Message
-The monitor will let you know its running every day:
+The monitor will let you know its running every day at the (UTC) time specified by `message_schedule`:
 ```yaml
 message_schedule: "07:00"
 ```
