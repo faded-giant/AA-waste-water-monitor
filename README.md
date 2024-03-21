@@ -5,7 +5,7 @@ Syncing data from the remote site to the monitor instance with `Dropbox` is reco
 
 ## Starting The Montior:
 
-Run `python3 monitor2.py <path/to/.csv files>`
+Run `python3 monitor.py <path/to/.csv files>`
 
 ## Formatting Rules
 Whatever programming is generating data you wish to monitor needs to follow the following rules:
