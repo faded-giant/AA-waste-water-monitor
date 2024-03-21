@@ -4,30 +4,40 @@
 email_recipients:
   - ethankethank@gmail.com
   - eckenned@umich.edu
+ # - kgiamm@umich.edu
+
 
 # Acceptable duration (in minutes) to not receive a response from the remote system
-remote_response_threshold: 3
+remote_response_threshold:
+  duration: 15
+  enabled : yes
 
 # Set points for different water quality parameters
 parameters:
   pH:
-    min: 6.5
-    max: 7.5
-  Temp:
+    min: 6
+    max: 9
+    enabled: yes
+  Temp(C):
     min: 20
     max: 32
-  NH4:
+    enabled: yes
+  NO₄ (mg/L):
     min: 0
     max: 67
-  Nitrate:
+    enabled: yes
+  NO₃ (mg/L):
     min: 0
     max: 100
-  Dissolved_Oxygen:
-    min: 5
+    enabled: yes
+  ODO(mg/L):
+    min: 1
     max: 12
-  ORP:
+    enabled: yes
+  ORP (mV):
     min: 200
     max: 400
+    enabled: yes
 
 # The specific time of day to receive a running message (in 24-hour format) NOTE: This is in UTC time
 message_schedule: "07:00"
