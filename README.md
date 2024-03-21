@@ -1,6 +1,8 @@
 # Remote Data Monitor
 This script addresses the challenge of identifying out-of-specification conditions in systems that operate without a reliable internet connection. It should be run in a persistent enviornment like Amazon Web Services `EC2`, but self hosting is also okay. 
 
+Syncing data from the remote site to the monitor instance with `Dropbox` is recommended
+
 ## Starting The Montior:
 
 Run `python3 monitor2.py <path/to/.csv files>`
