@@ -1,5 +1,10 @@
 # Remote Data Monitor
 This script addresses the challenge of identifying out-of-specification conditions in systems that operate without a reliable internet connection. It should be run in a persistent enviornment like Amazon Web Services `EC2`, but self hosting is also okay. 
+
+## Starting The Montior:
+
+Run `python3 monitor2.py <path/to/.csv files>`
+
 ## Formatting Rules
 Whatever programming is generating data you wish to monitor needs to follow the following rules:
 -  A new `.csv` file containing data is generated on a daily basis, formatted `YYYY-MMM-21.csv` Example: `2024-Mar-21.csv`
@@ -95,8 +100,6 @@ message_schedule: "07:00"
 the string above is formatted `HH:MM` and is in the `utc` timezone.
 
 
-## Starting The Montior:
 
-In bash, `python3 monitor2.py <path/to/.csv files>`
 
 
