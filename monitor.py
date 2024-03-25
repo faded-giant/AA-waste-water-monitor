@@ -2,22 +2,36 @@ import time,sys , yaml,os,re,ssl, smtplib,schedule,datetime,pytz
 from unidecode import unidecode
 port = 465  # For SSL
 smtp_server = "smtp.gmail.com"
-sender_email = <email_addr>  # Enter your address
-password = <email_password>
+sender_email = "aa.waste.water.monitor@gmail.com"  # Enter your address
+password = "jfacvpymfqbenkup"
 email_recipients=""
 Monitors = {}
 directory_path = sys.argv[1]
 previous_config = ""
+alert_sent = False
 with open('config.yml', 'r') as f:
         config = yaml.safe_load(f)
+
+def send_daily_update():
+    send_emails("Remote Monitor Daily Report", get_system_status_string())
+
 def get_system_status_string():
-    global config
+    global config, alert_sent, Monitors
     status ="Enabled Montiors:\n"
     for __,monitor in Monitors.items():
-        status = status + f"{unidecode(monitor.module.key)}: {monitor.module.low_setpoint} - {monitor.module.high_setpoint}\n"
+        status = status + f"{unidecode(monitor.module.key)}: {monitor.module.low_setpoint} - {monitor.module.high_setpoint}"
+        if monitor.module.current_value != "X":
+            status = status + f", Currently at {monitor.module.current_value}"
+        if monitor.module.tripped:
+            status = status + " (out of specification)\n"
+        else:
+            status = status + "\n"
     resp_val = config["remote_response_threshold"]["duration"]
     if (config["remote_response_threshold"]["enabled"]):
         status = status + f"Remote Response Threshold: {resp_val} minutes"
+        if alert_sent:
+            
+            status = status + " (data is currently stale)"
     else:
         status = status + f"Remote Response Threshold is disabled"
     return status
@@ -67,7 +81,7 @@ def update_config():
     global previous_config;
     if config != previous_config and previous_config != "":
         send_emails("Remote Monitor: Configuration Updated", "")
-        exit()
+        exit(0)
 
 def get_last_line_from_recent_file(directory):
     global Montiors
@@ -155,11 +169,11 @@ class SpecWatcher:
             print (self.column_id)
             return
             print (unidecode(self.key))
-        if (self.current_value >= self.high_setpoint or self.current_value <= self.low_setpoint) and not self.tripped:
+        if (self.current_value > self.high_setpoint or self.current_value < self.low_setpoint) and not self.tripped:
             send_emails(f"{unidecode(self.key)} is out of specification", f"{self.low_setpoint}-{self.high_setpoint} is acceptable, {unidecode(self.key)} is at {self.current_value}")
             print (f"ALERT: {self.key} is out of specification ({self.low_setpoint}-{self.high_setpoint}) at {self.current_value}")
             self.tripped = True
-        elif (self.current_value < self.high_setpoint and self.current_value > self.low_setpoint) and self.tripped:
+        elif (self.current_value <= self.high_setpoint and self.current_value >= self.low_setpoint) and self.tripped:
             self.tripped = False
             print (f"Remote Monitor: {self.key} returned to specification ({self.low_setpoint}-{self.high_setpoint}) at {self.current_value}")
             send_emails(f"{unidecode(self.key)} returned to specification", f"{self.low_setpoint}-{self.high_setpoint} is acceptable, {unidecode(self.key)} is at {self.current_value}")
@@ -191,15 +205,18 @@ email_recipients = config['email_recipients']
 message_schedule = config['message_schedule']
 send_emails("Remote Monitor: Restarted", get_system_status_string())
 #Monitors.append(Monitor(SpecWatcher(key = "pH",low_setpoint=4,high_setpoint=9)))
-schedule.every().day.at(message_schedule).do(send_emails,"Remote Monitor: OK", get_system_status_string())
+schedule.every().day.at(message_schedule).do(send_daily_update)
 
-alert_sent = False
+
 def analyze_data():
     global Monitors,alert_sent
-    last_line = get_last_line_from_recent_file(directory_path)
-    time_difference_minutes = time_since_last_log(last_line)
+    for i in range(3): #sometimes dropbox has lock on file, and may erronuously say data is stale
+        last_line = get_last_line_from_recent_file(directory_path)
+        time_difference_minutes = time_since_last_log(last_line)
+        if time_difference_minutes <= int(config["remote_response_threshold"]["duration"]):
+            break
+        time.sleep(3)
     print(f"Time since last log entry: {time_difference_minutes} minutes")
-    
     if time_difference_minutes >= int(config["remote_response_threshold"]["duration"]):
         if not alert_sent:
             send_emails(f"ALERT: Stale Data ", f"It has been {time_difference_minutes} minutes since new data was recieved")
@@ -207,16 +224,15 @@ def analyze_data():
     elif alert_sent and time_difference_minutes < int(config["remote_response_threshold"]["duration"]):
         send_emails(f"Remote Monitor: OK. Recieved Fresh Data","")
         alert_sent = False
-try:
-    while True:
-        schedule.run_pending()
-        analyze_data()
-        for _,monitor in Monitors.items():
-            monitor.module.check()
-        update_config()
-        time.sleep(3)
-except:
-    send_emails(f"ALERT: Un-handled Exception","Attempting to restart monitor...")
+
+while True:
+    schedule.run_pending()
+    analyze_data()
+    for _,monitor in Monitors.items():
+        monitor.module.check()
+    update_config()
+
+
 
 
 
