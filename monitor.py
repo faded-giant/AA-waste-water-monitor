@@ -94,7 +94,6 @@ def get_last_line_from_recent_file(directory):
 
         # Sort the filtered files by modification time (most recent first)
         sorted_files = sorted(filtered_files, key=lambda x: os.path.getmtime(os.path.join(directory, x)), reverse=True)
-
         # Check if there are any matching files
         if sorted_files:
             # Get the most recent file
@@ -117,9 +116,10 @@ def get_last_line_from_recent_file(directory):
                     last_line = lines[-1].strip()
                     data = last_line.split(',')
                     for monitor_key, col_id in manifest.items():
-                        print (monitor_key)
-                        print (col_id)
-                        Monitors[monitor_key].module.current_value = float(data[col_id])
+                        if data[col_id].isnumeric():
+                            Monitors[monitor_key].module.current_value = float(data[col_id])
+                        else:
+                            Monitors[monitor_key].module.current_value = '-'
                         print (monitor_key + str(data[int(col_id)]))
                     return last_line
                 else:
@@ -169,7 +169,7 @@ class SpecWatcher:
             print (self.column_id)
             return
             print (unidecode(self.key))
-        if (self.current_value > self.high_setpoint or self.current_value < self.low_setpoint) and not self.tripped:
+        if (self.current_value == '-' or self.current_value > self.high_setpoint or self.current_value < self.low_setpoint) and not self.tripped:
             send_emails(f"{unidecode(self.key)} is out of specification", f"{self.low_setpoint}-{self.high_setpoint} is acceptable, {unidecode(self.key)} is at {self.current_value}")
             print (f"ALERT: {self.key} is out of specification ({self.low_setpoint}-{self.high_setpoint}) at {self.current_value}")
             self.tripped = True
